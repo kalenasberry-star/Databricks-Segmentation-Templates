@@ -1,7 +1,7 @@
 # Behavioral Segmentation Template for Databricks
 
 A production-shaped, three-notebook template for **K-Means behavioral segmentation of a
-product category's customers** on Databricks — feature engineering, model training with
+product category's customers** on Databricks feature engineering, model training with
 a defensible k-selection policy, and profiling/activation output for a campaign tool
 (Braze, Salesforce MC, etc.).
 
@@ -12,7 +12,7 @@ week six.
 
 ## What questions does this answer?
 
-The technical ones — *how many segments exist, are they real, who is in each one* — and,
+The technical ones  *how many segments exist, are they real, who is in each one*  and,
 just as important, the **stakeholder questions** that every segmentation project gets
 asked. Those are collected with ready answers in
 [`docs/STAKEHOLDER_QA.md`](docs/STAKEHOLDER_QA.md), and the questions to settle *before*
@@ -30,12 +30,12 @@ docs/
   DAY_ONE_CHECKLIST.md               access, definitions, and data questions to settle before coding
 ```
 
-Notebooks are in Databricks **source format** — import them directly
+Notebooks are in Databricks **source format**  import them directly
 (Workspace → Import → File) and they render with markdown cells.
 
 ## Quickstart
 
-1. **Provision access first** (see the checklist — this is the #1 schedule risk):
+1. **Provision access first** (see the checklist  this is the #1 schedule risk):
    ```sql
    CREATE SCHEMA IF NOT EXISTS main.segmentation;
    GRANT USE SCHEMA, CREATE TABLE, MODIFY, SELECT, CREATE MODEL
@@ -50,12 +50,12 @@ Notebooks are in Databricks **source format** — import them directly
    and logs/registers the champion (`@champion` alias) in MLflow / Unity Catalog.
 4. **Run `03_segment_profiling_activation`.** It scores every eligible customer with
    the champion, prints each segment's evidence with auto-suggested names, and
-   publishes `customer_segments` — the table your campaign tool syncs from. After
+   publishes `customer_segments`  the table your campaign tool syncs from. After
    your naming session, fill in `SEGMENT_NAMES` and re-run; guard assertions verify
    the names match the behavior (the chart cannot lie).
 
-Order matters: 01 → 02 → 03. Notebook 03 is signature-driven — it asks the model
-which features it needs — so 01/02/03 can only drift apart loudly, never silently.
+Order matters: 01 → 02 → 03. Notebook 03 is signature-driven  it asks the model
+which features it needs  so 01/02/03 can only drift apart loudly, never silently.
 
 ## Design principles (the short version)
 
@@ -63,7 +63,7 @@ which features it needs — so 01/02/03 can only drift apart loudly, never silen
   exist at the visit level; compute facts where they are knowable.
 - **The discount-row guard.** Many POS systems store discounts as separate zero-dollar
   rows that inherit the item's category. Count them as items and basket metrics
-  inflate ~30% — enough to manufacture a phantom segment. Also: discount amounts are
+  inflate ~30%  enough to manufacture a phantom segment. Also: discount amounts are
   usually **negative**, so the promo test is `!= 0`, never `> 0`.
 - **Sanity caps.** Without them, a handful of outlier transactions earn their own
   0.0%-share micro-cluster at every k and poison the sweep.
@@ -71,7 +71,7 @@ which features it needs — so 01/02/03 can only drift apart loudly, never silen
   labels to leak; the held-out majority proves the structure generalizes, and every
   customer still gets a segment (an unscored customer is just untargetable).
 - **k is a policy, not an argmax.** Viability floor (≥3% share), plan-range
-  preference, and a noise tolerance — logged with the run, auditable forever.
+  preference, and a noise tolerance  logged with the run, auditable forever.
 - **Scaling lives inside the model pipeline**, never in the feature table, so the
   champion carries its own preprocessing and refreshes can't cause train/serve skew.
 - **Names are annotation, and they are guarded.** One dictionary, joined by
@@ -79,7 +79,7 @@ which features it needs — so 01/02/03 can only drift apart loudly, never silen
   unmapped ids, and a segment *named* "Fading" must *be* the max-recency segment.
   (This bug class bit us three times before the assertions. Zero times after.)
 - **Reporting columns ride along, model columns are curated.** Total spend, raw
-  window counts, and purchase-gap metrics stay out of the model vector — each
+  window counts, and purchase-gap metrics stay out of the model vector  each
   exclusion is commented with the reason, so the model layer never re-litigates it.
 - **Pin your runs.** Features recompute from a rolling window, so every run sees a
   slightly different universe. Train against a snapshot, cite one champion run ID in
@@ -98,12 +98,12 @@ which features it needs — so 01/02/03 can only drift apart loudly, never silen
 | What | Where |
 |---|---|
 | Target / secondary category | widgets in 01 (and 02's `secondary_category`) |
-| Daypart windows | `daypart_expr` in 01 — get stakeholder sign-off, then encode exactly |
+| Daypart windows | `daypart_expr` in 01  get stakeholder sign-off, then encode exactly |
 | Eligibility thresholds | widgets in 01 |
 | Selection policy | `MIN_SEGMENT_SHARE`, `SIL_TOLERANCE`, `preferred_k_range` in 02 |
-| Archetype rules | `suggest()` in 03 — a field guide, not a roster |
-| Activation attributes | Cell 4 of 03 — curate what syncs; band, don't ship raw floats |
+| Archetype rules | `suggest()` in 03  a field guide, not a roster |
+| Activation attributes | Cell 4 of 03  curate what syncs; band, don't ship raw floats |
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Use it, fork it, ship it.
+MIT  see [LICENSE](LICENSE). Use it, fork it, ship it.
